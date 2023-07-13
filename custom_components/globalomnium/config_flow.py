@@ -20,7 +20,7 @@
 import os
 from typing import Any
 
-import ideenergy
+import globalomnium
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
@@ -33,8 +33,8 @@ from .const import CONF_CONTRACT, CONFIG_ENTRY_VERSION, DOMAIN
 
 AUTH_SCHEMA = vol.Schema(
     {
-        vol.Required(CONF_USERNAME, default=os.environ.get("HASS_I_DE_USERNAME")): str,
-        vol.Required(CONF_PASSWORD, default=os.environ.get("HASS_I_DE_PASSWORD")): str,
+        vol.Required(CONF_USERNAME, default=os.environ.get("HASS_GO_USERNAME")): str,
+        vol.Required(CONF_PASSWORD, default=os.environ.get("HASS_GO_PASSWORD")): str,
     }
 )
 
@@ -71,7 +71,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call
             try:
                 self.api = await create_api(self.hass, username, password)
 
-            except ideenergy.ClientError:
+            except globalomnium.ClientError:
                 errors["base"] = "invalid_auth"
 
             except Exception:  # pylint: disable=broad-except
@@ -96,8 +96,8 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call
     async def async_step_contract(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
-        contracts = await self.api.get_contracts()
-        contracts = {f"{x['cups']} ({x['direccion']})": x for x in contracts}
+        contracts = await self.api.action_getSuministros() #OJO pendiente ver como se obtienen los diferentes suministros en la API de GLOBAL OMNIUM
+        contracts = {f"{x['referencia']} ({x['direccion']})": x for x in contracts} #OJO pendiente ver como se obtienen los diferentes suministros en la API de GLOBAL OMNIUM
 
         schema = vol.Schema({vol.Required(CONF_CONTRACT): vol.In(contracts.keys())})
 
@@ -107,11 +107,11 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call
         contract = contracts[user_input["contract"]]
         self.info.update(
             {
-                CONF_CONTRACT: contract["codContrato"],
+                CONF_CONTRACT: contract["referencia"],
             }
         )
 
-        title = "CUPS " + contract["cups"]
+        title = "REF " + contract["referencia"]
         return self.async_create_entry(title=title, data=self.info)
 
 
@@ -131,7 +131,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call
 
 async def create_api(hass, username, password):
     sess = async_create_clientsession(hass)
-    client = ideenergy.Client(sess, username, password)
+    client = globalomnium.Client(sess, username, password)
 
     await client.login()
     return client
