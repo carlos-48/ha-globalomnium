@@ -3,9 +3,9 @@ default_config:
 logger:
   default: warning
   logs:
-    ideenergy: warning
-    custom_components.ideenergy.datacoordinator: debug
-    custom_components.ideenergy.sensor: debug
-    custom_components.ideenergy.updates: debug
-    custom_components.ideenergy.fixes: debug
+    globalomnium: warning
+    custom_components.globalomnium.datacoordinator: debug
+    custom_components.globalomnium.sensor: debug
+    custom_components.globalomnium.updates: debug
+    custom_components.globalomnium.fixes: debug
     homeassistant_historical_sensor: debug
