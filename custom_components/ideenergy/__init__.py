@@ -52,8 +52,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     api = GlobalOmniumAPI(hass, entry)
 
     try:
-        contract_details = await api.get_contract_details()
-    except ideenergy.client.ClientError as e:
+        contract_details = await api.action_getSuministros()
+    except globalomnium.client.ClientError as e:
         _LOGGER.debug(f"Unable to initialize integration: {e}")
         return False
 
@@ -163,7 +163,8 @@ def GlobalOmniumDeviceInfo(contract_details):
             ("referencia", contract_details["referencia"]),
         },
         name=contract_details["referencia"],
-        manufacturer=contract_details["listContador"][0]["tipMarca"], #no hay fabricante, ¿comentar, eliminar o hardcodear?
+        # manufacturer=contract_details["listContador"][0]["tipMarca"], #no hay fabricante, ¿comentar, eliminar o hardcodear?
+        manufacturer="Global Omnium"
     )
 
 
