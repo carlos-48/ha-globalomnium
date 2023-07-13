@@ -1,3 +1,6 @@
+#I'M SORRY BUT ALL DOCUMENTATION IS STILL PENDING TO BE UPDATED TO THIS FORK. STILL THE ORIGINAL ONE
+
+
 # i-DE (Iberdrola Distribución) Custom Integration for Home Assistant
 
 <!-- HomeAssistant badges -->
