@@ -24,15 +24,15 @@ from homeassistant.helpers import device_registry, entity_registry
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.util import slugify
 
-from custom_components.ideenergy.const import DOMAIN
+from custom_components.globalomnium.const import DOMAIN
 
-from .entity import IDeEntity
+from .entity import GOEntity
 from .entity import _build_entity_unique_id as _build_entity_unique_id_v3
 from .sensor import AccumulatedConsumption, HistoricalConsumption
 
 _LOGGER = logging.getLogger(__name__)
 
-SensorType = type[IDeEntity]
+SensorType = type[GOEntity]
 
 
 def update_integration(
@@ -87,7 +87,7 @@ def _build_entity_unique_id_v2(
 ) -> str:
     cups = dict(device_info["identifiers"])["cups"]
 
-    return slugify(SensorClass.I_DE_ENTITY_NAME).replace("_", "-")
+    return slugify(SensorClass.GO_ENTITY_NAME).replace("_", "-")
 
 
 def _build_entity_entity_id_v2(
@@ -95,10 +95,10 @@ def _build_entity_entity_id_v2(
     device_info: DeviceInfo,
     SensorClass: SensorType,
 ) -> str:
-    cups = dict(device_info["identifiers"])["cups"]
-    base_id = slugify(f"{DOMAIN}" + f"_{cups}" + f"_{SensorClass.I_DE_ENTITY_NAME}")
+    referencia = dict(device_info["identifiers"])["referencia"]
+    base_id = slugify(f"{DOMAIN}" + f"_{referencia}" + f"_{SensorClass.GO_ENTITY_NAME}")
 
-    return f"{SensorClass.I_DE_PLATFORM}.{base_id}".lower()
+    return f"{SensorClass.GO_PLATFORM}.{base_id}".lower()
 
 
 #
@@ -154,7 +154,7 @@ def _update_entity_registry_v1(
     for old_sensor_type, new_sensor_cls in migrate:
         entity_id = er.async_get_entity_id(
             "sensor",
-            "ideenergy",
+            "globalomnium",
             _build_entity_unique_id_v1(config_entry, old_sensor_type),
         )
         if not entity_id:
@@ -174,7 +174,7 @@ def _update_entity_registry_v1(
         )
 
         old_name = getattr(entity, "name")
-        new_name = new_sensor_cls.I_DE_ENTITY_NAME
+        new_name = new_sensor_cls.GO_ENTITY_NAME
 
         er.async_update_entity(
             entity.entity_id,
