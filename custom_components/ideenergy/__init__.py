@@ -21,7 +21,7 @@ import logging
 import math
 from datetime import timedelta
 
-import ideenergy
+import globalomnium
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 from homeassistant.core import HomeAssistant
@@ -40,7 +40,7 @@ from .const import (
     UPDATE_WINDOW_END_MINUTE,
     UPDATE_WINDOW_START_MINUTE,
 )
-from .datacoordinator import DataSetType, IDeCoordinator
+from .datacoordinator import DataSetType, GOCoordinator
 from .updates import update_integration
 
 PLATFORMS: list[str] = ["sensor"]
@@ -49,7 +49,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    api = IDeEnergyAPI(hass, entry)
+    api = GlobalOmniumAPI(hass, entry)
 
     try:
         contract_details = await api.get_contract_details()
@@ -57,9 +57,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         _LOGGER.debug(f"Unable to initialize integration: {e}")
         return False
 
-    device_info = IDeEnergyDeviceInfo(contract_details)
+    device_info = GlobalOmniumDeviceInfo(contract_details)
 
-    coordinator = IDeCoordinator(
+    coordinator = GOCoordinator(
         hass=hass,
         api=api,
         barriers={
@@ -74,12 +74,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             DataSetType.HISTORICAL_CONSUMPTION: TimeDeltaBarrier(
                 delta=timedelta(hours=6)
             ),
-            DataSetType.HISTORICAL_GENERATION: TimeDeltaBarrier(
-                delta=timedelta(hours=6)
-            ),
-            DataSetType.HISTORICAL_POWER_DEMAND: TimeDeltaBarrier(
-                delta=timedelta(hours=36)
-            ),
+            # DataSetType.HISTORICAL_GENERATION: TimeDeltaBarrier(
+            #     delta=timedelta(hours=6)
+            # ),
+            # DataSetType.HISTORICAL_POWER_DEMAND: TimeDeltaBarrier(
+            #     delta=timedelta(hours=36)
+            # ),
         },
         # Use default update_interval and relay on barriers for now
         # MEASURE barrier should deny if last attempt (success or not) is too recent to
@@ -145,30 +145,30 @@ def _calculate_datacoordinator_update_interval() -> timedelta:
 
 
 async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry):
-    api = IDeEnergyAPI(hass, entry)
+    api = GlobalOmniumAPI(hass, entry)
 
     try:
         contract_details = await api.get_contract_details()
-    except ideenergy.client.ClientError as e:
+    except globalomnium.client.ClientError as e:
         _LOGGER.debug(f"Unable to initialize integration: {e}")
         return False
 
-    update_integration(hass, entry, IDeEnergyDeviceInfo(contract_details))
+    update_integration(hass, entry, GlobalOmniumDeviceInfo(contract_details))
     return True
 
 
-def IDeEnergyDeviceInfo(contract_details):
+def GlobalOmniumDeviceInfo(contract_details):
     return DeviceInfo(
         identifiers={
-            ("cups", contract_details["cups"]),
+            ("referencia", contract_details["referencia"]),
         },
-        name=contract_details["cups"],
-        manufacturer=contract_details["listContador"][0]["tipMarca"],
+        name=contract_details["referencia"],
+        manufacturer=contract_details["listContador"][0]["tipMarca"], #no hay fabricante, ¿comentar, eliminar o hardcodear?
     )
 
 
-def IDeEnergyAPI(hass: HomeAssistant, entry: ConfigEntry):
-    return ideenergy.Client(
+def GlobalOmniumAPI(hass: HomeAssistant, entry: ConfigEntry):
+    return globalomnium.Client(
         session=async_get_clientsession(hass),
         username=entry.data[CONF_USERNAME],
         password=entry.data[CONF_PASSWORD],
