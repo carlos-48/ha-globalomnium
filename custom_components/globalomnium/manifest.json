@@ -1,0 +1,21 @@
+{
+  "domain": "globalomnium",
+  "name": "Global Omnium Water Consumption",
+  "codeowners": [
+    "@ldotlopez"
+    "@carlos-48"
+  ],
+  "config_flow": true,
+  "dependencies": [
+    "recorder"
+  ],
+  "documentation": "https://github.com/carlos-48/test-globalomnium-fork-ha-ideenergy",
+  "integration_type": "device",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/carlos-48/test-globalomnium-fork-ha-ideenergy/issues",
+  "requirements": [
+    "globalomnium==1.0.0",
+    "homeassistant-historical-sensor==2.0.0b0"
+  ],
+  "version": "2.0.1"
+}
