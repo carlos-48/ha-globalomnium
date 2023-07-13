@@ -43,8 +43,9 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     STATE_UNAVAILABLE,
     STATE_UNKNOWN,
-    UnitOfEnergy,
-    UnitOfPower,
+    # UnitOfEnergy,
+    # UnitOfPower,
+    UnitOfWater,
 )
 from homeassistant.core import HomeAssistant, callback, dt_util
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -56,13 +57,13 @@ from homeassistant_historical_sensor import HistoricalSensor, HistoricalState
 from .const import DOMAIN
 from .datacoordinator import (
     DATA_ATTR_HISTORICAL_CONSUMPTION,
-    DATA_ATTR_HISTORICAL_GENERATION,
-    DATA_ATTR_HISTORICAL_POWER_DEMAND,
+    # DATA_ATTR_HISTORICAL_GENERATION,
+    # DATA_ATTR_HISTORICAL_POWER_DEMAND,
     DATA_ATTR_MEASURE_ACCUMULATED,
     DATA_ATTR_MEASURE_INSTANT,
     DataSetType,
 )
-from .entity import IDeEntity
+from .entity import GOEntity
 from .fixes import async_fix_statistics
 
 PLATFORM = "sensor"
@@ -71,7 +72,7 @@ MAINLAND_SPAIN_ZONEINFO = dtutil.zoneinfo.ZoneInfo("Europe/Madrid")
 _LOGGER = logging.getLogger(__name__)
 
 
-# The IDeSensor class provides:
+# The GOSensor class provides:
 #     __init__
 #     __repr__
 #     name
@@ -232,15 +233,15 @@ class StatisticsMixin(HistoricalSensor):
         return ret
 
 
-class AccumulatedConsumption(RestoreEntity, IDeEntity, SensorEntity):
-    I_DE_PLATFORM = PLATFORM
-    I_DE_ENTITY_NAME = "Accumulated Consumption"
-    I_DE_DATA_SETS = [DataSetType.MEASURE]
+class AccumulatedConsumption(RestoreEntity, GOEntity, SensorEntity):
+    GO_PLATFORM = PLATFORM
+    GO_ENTITY_NAME = "Accumulated Consumption"
+    GO_DATA_SETS = [DataSetType.MEASURE]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._attr_device_class = SensorDeviceClass.ENERGY
-        self._attr_native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
+        self._attr_device_class = SensorDeviceClass.WATER
+        self._attr_native_unit_of_measurement = UnitOfVolume.CUBIC_METERS
 
         # TOTAL vs TOTAL_INCREASING:
         #
@@ -274,47 +275,47 @@ class AccumulatedConsumption(RestoreEntity, IDeEntity, SensorEntity):
         )
 
 
-class InstantPowerDemand(RestoreEntity, IDeEntity, SensorEntity):
-    I_DE_PLATFORM = PLATFORM
-    I_DE_ENTITY_NAME = "Instant Power Demand"
-    I_DE_DATA_SETS = [DataSetType.MEASURE]
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._attr_device_class = SensorDeviceClass.POWER
-        self._attr_state_class = SensorStateClass.MEASUREMENT
-        self._attr_native_unit_of_measurement = UnitOfPower.WATT
-
-    @property
-    def state(self):
-        if self.coordinator.data is None:
-            return None
-
-        return self.coordinator.data[DATA_ATTR_MEASURE_INSTANT]
-
-    @callback
-    def _handle_coordinator_update(self) -> None:
-        self.async_write_ha_state()
-
-    async def async_added_to_hass(self) -> None:
-        await super().async_added_to_hass()
-
-        saved_data = await async_get_last_state_safe(self, float)
-        self.coordinator.update_internal_data({DATA_ATTR_MEASURE_INSTANT: saved_data})
-
-
+# class InstantPowerDemand(RestoreEntity, IDeEntity, SensorEntity):
+#     I_DE_PLATFORM = PLATFORM
+#     I_DE_ENTITY_NAME = "Instant Power Demand"
+#     I_DE_DATA_SETS = [DataSetType.MEASURE]
+# 
+#     def __init__(self, *args, **kwargs):
+#        super().__init__(*args, **kwargs)
+#         self._attr_device_class = SensorDeviceClass.POWER
+#         self._attr_state_class = SensorStateClass.MEASUREMENT
+#         self._attr_native_unit_of_measurement = UnitOfPower.WATT
+# 
+#     @property
+#     def state(self):
+#         if self.coordinator.data is None:
+#             return None
+# 
+#         return self.coordinator.data[DATA_ATTR_MEASURE_INSTANT]
+# 
+#     @callback
+#     def _handle_coordinator_update(self) -> None:
+#         self.async_write_ha_state()
+# 
+#     async def async_added_to_hass(self) -> None:
+#         await super().async_added_to_hass()
+# 
+#         saved_data = await async_get_last_state_safe(self, float)
+#         self.coordinator.update_internal_data({DATA_ATTR_MEASURE_INSTANT: saved_data})
+# 
+# 
 class HistoricalConsumption(
-    StatisticsMixin, HistoricalSensorMixin, IDeEntity, SensorEntity
+    StatisticsMixin, HistoricalSensorMixin, GOEntity, SensorEntity
 ):
-    I_DE_PLATFORM = PLATFORM
-    I_DE_ENTITY_NAME = "Historical Consumption"
-    I_DE_DATA_SETS = [DataSetType.HISTORICAL_CONSUMPTION]
+    GO_PLATFORM = PLATFORM
+    GO_ENTITY_NAME = "Historical Consumption"
+    GO_DATA_SETS = [DataSetType.HISTORICAL_CONSUMPTION]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self._attr_device_class = SensorDeviceClass.ENERGY
-        self._attr_native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
+        self._attr_device_class = SensorDeviceClass.WATER
+        self._attr_native_unit_of_measurement = UnitOfVolume.CUBIC_METERS
         self._attr_entity_registry_enabled_default = False
         self._attr_state = None
 
@@ -339,75 +340,75 @@ class HistoricalConsumption(
         return ret
 
 
-class HistoricalGeneration(
-    StatisticsMixin, HistoricalSensorMixin, IDeEntity, SensorEntity
-):
-    I_DE_PLATFORM = PLATFORM
-    I_DE_ENTITY_NAME = "Historical Generation"
-    I_DE_DATA_SETS = [DataSetType.HISTORICAL_GENERATION]
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._attr_device_class = SensorDeviceClass.ENERGY
-        self._attr_native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
-        self._attr_entity_registry_enabled_default = False
-        self._attr_state = None
-
-        # The sensor's state is reset with every state update, for example a sensor
-        # updating every minute with the energy consumption during the past minute:
-        # state class total, last_reset updated every state change.
-        #
-        # (*) last_reset is set in states by historical_states_from_historical_api_data
-        # (*) set only in internal statistics model
-        #
-        # DON'T set for HistoricalSensors, you will mess your statistics.
-        #
-        # Keep as reference.
-        #
-        # self._attr_state_class = SensorStateClass.TOTAL
-
-    @property
-    def historical_states(self):
-        ret = historical_states_from_historical_api_data(
-            self.coordinator.data[DATA_ATTR_HISTORICAL_GENERATION]["historical"]
-        )
-
-        return ret
-
-
-class HistoricalPowerDemand(HistoricalSensorMixin, IDeEntity, SensorEntity):
-    I_DE_PLATFORM = PLATFORM
-    I_DE_ENTITY_NAME = "Historical Power Demand"
-    I_DE_DATA_SETS = [DataSetType.HISTORICAL_POWER_DEMAND]
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._attr_device_class = SensorDeviceClass.POWER
-        self._attr_native_unit_of_measurement = UnitOfPower.WATT
-        self._attr_entity_registry_enabled_default = False
-        self._attr_state = None
-
-    @property
-    def historical_states(self):
-        def _convert_item(item):
-            # [
-            #     {
-            #         "dt": datetime.datetime(2021, 4, 24, 13, 0),
-            #         "value": 3012.0
-            #     },
-            #     ...
-            # ]
-            return HistoricalState(
-                state=item["value"] / 1000,
-                dt=item["dt"].replace(tzinfo=MAINLAND_SPAIN_ZONEINFO),
-            )
-
-        data = self.coordinator.data[DATA_ATTR_HISTORICAL_POWER_DEMAND]
-        ret = [_convert_item(item) for item in data]
-
-        return ret
-
-
+# class HistoricalGeneration(
+#     StatisticsMixin, HistoricalSensorMixin, IDeEntity, SensorEntity
+# ):
+#     I_DE_PLATFORM = PLATFORM
+#     I_DE_ENTITY_NAME = "Historical Generation"
+#     I_DE_DATA_SETS = [DataSetType.HISTORICAL_GENERATION]
+# 
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         self._attr_device_class = SensorDeviceClass.ENERGY
+#         self._attr_native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
+#         self._attr_entity_registry_enabled_default = False
+#         self._attr_state = None
+# 
+#         # The sensor's state is reset with every state update, for example a sensor
+#         # updating every minute with the energy consumption during the past minute:
+#         # state class total, last_reset updated every state change.
+#         #
+#         # (*) last_reset is set in states by historical_states_from_historical_api_data
+#         # (*) set only in internal statistics model
+#         #
+#         # DON'T set for HistoricalSensors, you will mess your statistics.
+#         #
+#         # Keep as reference.
+#         #
+#         # self._attr_state_class = SensorStateClass.TOTAL
+# 
+#     @property
+#     def historical_states(self):
+#         ret = historical_states_from_historical_api_data(
+#             self.coordinator.data[DATA_ATTR_HISTORICAL_GENERATION]["historical"]
+#         )
+# 
+#         return ret
+# 
+# 
+# class HistoricalPowerDemand(HistoricalSensorMixin, IDeEntity, SensorEntity):
+#     I_DE_PLATFORM = PLATFORM
+#     I_DE_ENTITY_NAME = "Historical Power Demand"
+#     I_DE_DATA_SETS = [DataSetType.HISTORICAL_POWER_DEMAND]
+# 
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         self._attr_device_class = SensorDeviceClass.POWER
+#         self._attr_native_unit_of_measurement = UnitOfPower.WATT
+#         self._attr_entity_registry_enabled_default = False
+#         self._attr_state = None
+# 
+#     @property
+#     def historical_states(self):
+#         def _convert_item(item):
+#             # [
+#             #     {
+#             #         "dt": datetime.datetime(2021, 4, 24, 13, 0),
+#             #         "value": 3012.0
+#             #     },
+#             #     ...
+#             # ]
+#             return HistoricalState(
+#                 state=item["value"] / 1000,
+#                 dt=item["dt"].replace(tzinfo=MAINLAND_SPAIN_ZONEINFO),
+#             )
+# 
+#         data = self.coordinator.data[DATA_ATTR_HISTORICAL_POWER_DEMAND]
+#         ret = [_convert_item(item) for item in data]
+# 
+#         return ret
+# 
+# 
 async def async_setup_entry(
     hass: HomeAssistant,
     config_entry: ConfigEntry,
@@ -420,18 +421,18 @@ async def async_setup_entry(
         AccumulatedConsumption(
             config_entry=config_entry, device_info=device_info, coordinator=coordinator
         ),
-        InstantPowerDemand(
-            config_entry=config_entry, device_info=device_info, coordinator=coordinator
-        ),
+#         InstantPowerDemand(
+#             config_entry=config_entry, device_info=device_info, coordinator=coordinator
+#         ),
         HistoricalConsumption(
             config_entry=config_entry, device_info=device_info, coordinator=coordinator
         ),
-        HistoricalGeneration(
-            config_entry=config_entry, device_info=device_info, coordinator=coordinator
-        ),
-        HistoricalPowerDemand(
-            config_entry=config_entry, device_info=device_info, coordinator=coordinator
-        ),
+#         HistoricalGeneration(
+#             config_entry=config_entry, device_info=device_info, coordinator=coordinator
+#         ),
+#         HistoricalPowerDemand(
+#             config_entry=config_entry, device_info=device_info, coordinator=coordinator
+#         ),
     ]
     async_add_devices(sensors)
 
@@ -445,7 +446,7 @@ def historical_states_from_historical_api_data(
         last_reset = item["start"].replace(tzinfo=MAINLAND_SPAIN_ZONEINFO)
 
         return HistoricalState(
-            state=item["value"] / 1000,
+            state=item["value"] / 1000, #¿debo dividir entre mil? ya veré si para GO necesito este cambio de unidad, creo que si
             dt=dt,
             attributes={"last_reset": last_reset},
         )
