@@ -31,14 +31,14 @@ from homeassistant_historical_sensor.recorderutil import (
     hass_recorder_session,
 )
 
-SensorType = type["IDeEntity"]
+SensorType = type["GOEntity"]
 
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class IDeEntity(CoordinatorEntity):
-    """The IDeSensor class provides:
+class GOEntity(CoordinatorEntity):
+    """The GOSensor class provides:
     __init__
     __repr__
     name
@@ -47,20 +47,20 @@ class IDeEntity(CoordinatorEntity):
     entity_registry_enabled_default
     """
 
-    I_DE_ENTITY_NAME = ""
-    I_DE_DATA_SETS = []  # type: ignore[var-annotated]
+    GO_ENTITY_NAME = ""
+    GO_DATA_SETS = []  # type: ignore[var-annotated]
 
     def __init__(self, *args, config_entry, device_info, **kwargs):
         super().__init__(*args, **kwargs)
 
         self._attr_has_entity_name = True
-        self._attr_name = self.I_DE_ENTITY_NAME
+        self._attr_name = self.GO_ENTITY_NAME
 
         self._attr_unique_id = _build_entity_unique_id(
-            device_info, self.I_DE_ENTITY_NAME
+            device_info, self.GO_ENTITY_NAME
         )
         self._attr_entity_id = _build_entity_entity_id(
-            self.I_DE_PLATFORM, device_info, self.I_DE_ENTITY_NAME
+            self.GO_PLATFORM, device_info, self.GO_ENTITY_NAME
         )
 
         self._attr_device_info = device_info
@@ -74,7 +74,7 @@ class IDeEntity(CoordinatorEntity):
         else:
             api = self.api
 
-        return f"<{clsname} {api.username}/{api._contract}>"
+        return f"<{clsname} {api.username}/{api._contract}>" #¿Cambiar contract por referencia?
 
     async def async_added_to_hass(self) -> None:
         n_invalid_states = await self.async_delete_invalid_states()
