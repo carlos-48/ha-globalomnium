@@ -21,7 +21,7 @@ import logging
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
-import ideenergy
+import globalomnium
 from homeassistant.core import dt_util
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
@@ -41,10 +41,10 @@ class DataSetType(enum.IntFlag):
     NONE = 0
     MEASURE = 1 << 0
     HISTORICAL_CONSUMPTION = 1 << 1
-    HISTORICAL_GENERATION = 1 << 2
-    HISTORICAL_POWER_DEMAND = 1 << 3
+    HISTORICAL_GENERATION = 1 << 2 #comentar o borrar???
+    HISTORICAL_POWER_DEMAND = 1 << 3 #comentar o borrar???
 
-    ALL = 0b1111
+    ALL = 0b1111 #afectará a esto si modifico lo de arriba?
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -54,19 +54,19 @@ _DEFAULT_COORDINATOR_DATA: dict[str, Any] = {
     DATA_ATTR_MEASURE_INSTANT: None,
     DATA_ATTR_HISTORICAL_CONSUMPTION: {
         "accumulated": None,
-        "accumulated-co2": None,
+#         "accumulated-co2": None,
         "historical": [],
     },
-    DATA_ATTR_HISTORICAL_GENERATION: {
-        "accumulated": None,
-        "accumulated-co2": None,
-        "historical": [],
-    },
-    DATA_ATTR_HISTORICAL_POWER_DEMAND: [],
+#     DATA_ATTR_HISTORICAL_GENERATION: {
+#         "accumulated": None,
+#         "accumulated-co2": None,
+#         "historical": [],
+#     },
+#     DATA_ATTR_HISTORICAL_POWER_DEMAND: [],
 }
 
 
-class IDeCoordinator(DataUpdateCoordinator):
+class GOCoordinator(DataUpdateCoordinator):
     def __init__(
         self,
         hass,
@@ -75,7 +75,7 @@ class IDeCoordinator(DataUpdateCoordinator):
         update_interval: timedelta = timedelta(seconds=30),
     ):
         name = (
-            f"{api.username}/{api._contract} coordinator" if api else "i-de coordinator"
+            f"{api.username}/{api._contract} coordinator" if api else "GO coordinator" #¿cambiar contract por referencia? creo que no
         )
         super().__init__(hass, _LOGGER, name=name, update_interval=update_interval)
 
@@ -85,13 +85,13 @@ class IDeCoordinator(DataUpdateCoordinator):
         # FIXME: platforms from HomeAssistant should have types
         self.platforms: list[str] = []
 
-        self.sensors: list[IDeEntity] = []
+        self.sensors: list[GOEntity] = []
 
-    def register_sensor(self, sensor: IDeEntity) -> None:
+    def register_sensor(self, sensor: GOEntity) -> None:
         self.sensors.append(sensor)
         _LOGGER.debug(f"Registered sensor '{sensor.__class__.__name__}'")
 
-    def unregister_sensor(self, sensor: IDeEntity) -> None:
+    def unregister_sensor(self, sensor: GPEntity) -> None:
         _LOGGER.debug(f"Unregistered sensor '{sensor.__class__.__name__}'")
         self.sensors.remove(sensor)
 
@@ -120,7 +120,7 @@ class IDeCoordinator(DataUpdateCoordinator):
 
         ds = DataSetType.NONE
         for sensor in self.sensors:
-            for s_ds in sensor.I_DE_DATA_SETS:
+            for s_ds in sensor.GO_DATA_SETS:
                 ds = ds | s_ds
 
         dsstr = ds.name.replace("|", ", ")
@@ -168,11 +168,11 @@ class IDeCoordinator(DataUpdateCoordinator):
                 elif dataset is DataSetType.HISTORICAL_CONSUMPTION:
                     data.update(await self.get_historical_consumption_data())
 
-                elif dataset is DataSetType.HISTORICAL_GENERATION:
-                    data.update(await self.get_historical_generation_data())
-
-                elif dataset is DataSetType.HISTORICAL_POWER_DEMAND:
-                    data.update(await self.get_historical_power_demand_data())
+#                 elif dataset is DataSetType.HISTORICAL_GENERATION:
+#                     data.update(await self.get_historical_generation_data())
+# 
+#                 elif dataset is DataSetType.HISTORICAL_POWER_DEMAND:
+#                     data.update(await self.get_historical_power_demand_data())
 
                 else:
                     _LOGGER.debug(
@@ -186,14 +186,14 @@ class IDeCoordinator(DataUpdateCoordinator):
                 )
                 continue
 
-            except ideenergy.RequestFailedError as e:
+            except globalomnium.RequestFailedError as e:
                 _LOGGER.debug(
                     f"update error for {dataset.name}: "
                     + f"{e.response.reason} ({e.response.status})"
                 )
                 continue
 
-            except ideenergy.CommandError as e:
+            except globalomnium.CommandError as e:
                 _LOGGER.debug(
                     f"update error for {dataset.name}: command error from API ({e!r})"
                 )
@@ -217,7 +217,7 @@ class IDeCoordinator(DataUpdateCoordinator):
         return data
 
     async def get_direct_reading_data(self) -> dict[str, int | float]:
-        data = await self.api.get_measure()
+        data = await self.api.action_getDatosLecturaHorariaEntreFechas()
 
         return {
             DATA_ATTR_MEASURE_ACCUMULATED: data.accumulate,
@@ -225,20 +225,20 @@ class IDeCoordinator(DataUpdateCoordinator):
         }
 
     async def get_historical_consumption_data(self) -> Any:
-        end = datetime.today()
-        start = end - HISTORICAL_PERIOD_LENGHT
-        data = await self.api.get_historical_consumption(start=start, end=end)
+        end = datetime.today() # ¿cambiar formato de fecha?
+        start = end - HISTORICAL_PERIOD_LENGHT ¿cambiar formato de fecha?
+        data = await self.api.action_getDatosLecturaHorariaEntreFechas(start=start, end=end)
 
         return {DATA_ATTR_HISTORICAL_CONSUMPTION: data}
 
-    async def get_historical_generation_data(self) -> Any:
-        end = datetime.today()
-        start = end - HISTORICAL_PERIOD_LENGHT
-        data = await self.api.get_historical_generation(start=start, end=end)
-
-        return {DATA_ATTR_HISTORICAL_GENERATION: data}
-
-    async def get_historical_power_demand_data(self) -> Any:
-        data = await self.api.get_historical_power_demand()
-
-        return {DATA_ATTR_HISTORICAL_POWER_DEMAND: data}
+#     async def get_historical_generation_data(self) -> Any:
+#         end = datetime.today()
+#         start = end - HISTORICAL_PERIOD_LENGHT
+#         data = await self.api.get_historical_generation(start=start, end=end)
+# 
+#         return {DATA_ATTR_HISTORICAL_GENERATION: data}
+# 
+#     async def get_historical_power_demand_data(self) -> Any:
+#         data = await self.api.get_historical_power_demand()
+# 
+#        return {DATA_ATTR_HISTORICAL_POWER_DEMAND: data}
