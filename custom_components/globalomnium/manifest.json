@@ -14,8 +14,8 @@
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/carlos-48/test-globalomnium-fork-ha-ideenergy/issues",
   "requirements": [
-    "globalomnium==2023.7.1",
+    "globalomnium==2023.07.1",
     "homeassistant-historical-sensor==2.0.0b0"
   ],
-  "version": "2023.7.1"
+  "version": "2023.07.1"
 }
