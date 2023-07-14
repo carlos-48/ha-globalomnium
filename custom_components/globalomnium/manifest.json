@@ -17,5 +17,5 @@
     "globalomnium==2023.07.3",
     "homeassistant-historical-sensor==2.0.0b0"
   ],
-  "version": "2023.07.1"
+  "version": "2023.07.3"
 }
