@@ -226,7 +226,7 @@ class GOCoordinator(DataUpdateCoordinator):
 
     async def get_historical_consumption_data(self) -> Any:
         end = datetime.today() # ¿cambiar formato de fecha?
-        start = end - HISTORICAL_PERIOD_LENGHT ¿cambiar formato de fecha?
+        start = end - HISTORICAL_PERIOD_LENGHT #¿cambiar formato de fecha?
         data = await self.api.action_getDatosLecturaHorariaEntreFechas(start=start, end=end)
 
         return {DATA_ATTR_HISTORICAL_CONSUMPTION: data}
