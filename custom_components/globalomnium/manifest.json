@@ -2,7 +2,7 @@
   "domain": "globalomnium",
   "name": "Global Omnium Water Consumption",
   "codeowners": [
-    "@ldotlopez"
+    "@ldotlopez",
     "@carlos-48"
   ],
   "config_flow": true,
