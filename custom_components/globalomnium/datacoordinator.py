@@ -28,8 +28,8 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from .barrier import Barrier, BarrierDeniedError
 from .const import (
     DATA_ATTR_HISTORICAL_CONSUMPTION,
-    DATA_ATTR_HISTORICAL_GENERATION,
-    DATA_ATTR_HISTORICAL_POWER_DEMAND,
+    # DATA_ATTR_HISTORICAL_GENERATION,
+    # DATA_ATTR_HISTORICAL_POWER_DEMAND,
     DATA_ATTR_MEASURE_ACCUMULATED,
     DATA_ATTR_MEASURE_INSTANT,
     HISTORICAL_PERIOD_LENGHT,
@@ -41,8 +41,8 @@ class DataSetType(enum.IntFlag):
     NONE = 0
     MEASURE = 1 << 0
     HISTORICAL_CONSUMPTION = 1 << 1
-    HISTORICAL_GENERATION = 1 << 2 #comentar o borrar???
-    HISTORICAL_POWER_DEMAND = 1 << 3 #comentar o borrar???
+    # HISTORICAL_GENERATION = 1 << 2 #comentar o borrar???
+    # HISTORICAL_POWER_DEMAND = 1 << 3 #comentar o borrar???
 
     ALL = 0b1111 #afectará a esto si modifico lo de arriba?
 
