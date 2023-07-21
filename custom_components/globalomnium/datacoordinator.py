@@ -34,7 +34,7 @@ from .const import (
     DATA_ATTR_MEASURE_INSTANT,
     HISTORICAL_PERIOD_LENGHT,
 )
-from .entity import IDeEntity
+from .entity import GOEntity
 
 
 class DataSetType(enum.IntFlag):
