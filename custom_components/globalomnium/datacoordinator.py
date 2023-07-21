@@ -91,7 +91,7 @@ class GOCoordinator(DataUpdateCoordinator):
         self.sensors.append(sensor)
         _LOGGER.debug(f"Registered sensor '{sensor.__class__.__name__}'")
 
-    def unregister_sensor(self, sensor: GPEntity) -> None:
+    def unregister_sensor(self, sensor: GOEntity) -> None:
         _LOGGER.debug(f"Unregistered sensor '{sensor.__class__.__name__}'")
         self.sensors.remove(sensor)
 
