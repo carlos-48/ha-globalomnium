@@ -45,7 +45,8 @@ from homeassistant.const import (
     STATE_UNKNOWN,
     # UnitOfEnergy,
     # UnitOfPower,
-    UnitOfWater,
+    # UnitOfWater, #no implementado en HA
+    UnitOfVolume
 )
 from homeassistant.core import HomeAssistant, callback, dt_util
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
