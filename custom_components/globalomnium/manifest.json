@@ -2,17 +2,16 @@
   "domain": "globalomnium",
   "name": "Global Omnium Water Consumption",
   "codeowners": [
-    "@ldotlopez",
     "@carlos-48"
   ],
   "config_flow": true,
   "dependencies": [
     "recorder"
   ],
-  "documentation": "https://github.com/carlos-48/test-globalomnium-fork-ha-ideenergy",
+  "documentation": "https://github.com/carlos-48/ha-globalomnium",
   "integration_type": "device",
   "iot_class": "cloud_polling",
-  "issue_tracker": "https://github.com/carlos-48/test-globalomnium-fork-ha-ideenergy/issues",
+  "issue_tracker": "https://github.com/carlos-48/ha-globalomnium/issues",
   "loggers": ["custom_components.globalomnium"],
   "requirements": [
     "globalomnium==2023.07.4",
