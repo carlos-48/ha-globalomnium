@@ -19,7 +19,7 @@ This repo is a modified fork from [ldotlopez/ha-ideenergy](https://github.com/ld
 
 Global Omnium Custom Integration for Home Assistant, providing sensors for Spanish Water Distributor [Global Omnium](https://www.globalomnium.com).
 
-**⚠️ Make sure to read the '[FAQ](https://github.com/ldotlopez/ha-ideenergy/blob/main/FAQ.md)', 'Dependencies' and 'Warning' sections**
+**⚠️ Make sure to read the '[FAQ](https://github.com/carlos-48/ha-globalomnium/blob/main/FAQ.md)', 'Dependencies' and 'Warning' sections**
 
 ## Features
 
